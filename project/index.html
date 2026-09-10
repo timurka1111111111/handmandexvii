@@ -4,52 +4,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Firestore — коллекция 123</title>
+  <title>Firestore</title>
 
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      margin: 0;
       padding: 30px;
-    }
-
-    h1 {
-      text-align: center;
+      background: #f5f5f5;
     }
 
     #status {
-      text-align: center;
-      margin: 20px 0;
-      color: #555;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
+      padding: 15px;
       background: white;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      margin-bottom: 20px;
     }
 
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: left;
+    .error {
+      color: red;
     }
 
-    th {
-      background: #222;
-      color: white;
-    }
-
-    tr:nth-child(even) {
-      background: #f9f9f9;
+    .success {
+      color: green;
     }
 
     pre {
-      margin: 0;
-      white-space: pre-wrap;
-      word-break: break-word;
+      background: #222;
+      color: #0f0;
+      padding: 15px;
+      overflow: auto;
     }
   </style>
 
@@ -57,16 +40,11 @@
 
 <body>
 
-  <h1>Коллекция 123</h1>
+  <h1>Firestore — коллекция 123</h1>
 
-  <div id="status">Загрузка данных...</div>
+  <div id="status">Подключение к Firebase...</div>
 
-  <table id="dataTable" style="display: none;">
-    <thead>
-      <tr id="tableHead"></tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
+  <pre id="result"></pre>
 
   <script type="module">
 
@@ -80,7 +58,6 @@
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-    // Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBeDVmRsPo8UGgpIpo6s2QqxAP8E7q-6Hs",
       authDomain: "openko-62d24.firebaseapp.com",
@@ -88,121 +65,51 @@
     };
 
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const status = document.getElementById("status");
+    const result = document.getElementById("result");
 
 
-    async function loadData() {
+    try {
 
-      const status = document.getElementById("status");
-      const table = document.getElementById("dataTable");
-      const tableHead = document.getElementById("tableHead");
-      const tableBody = document.getElementById("tableBody");
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
 
-      try {
-
-        // Получаем коллекцию "123"
-        const querySnapshot = await getDocs(
-          collection(db, "123")
-        );
+      status.textContent = "Firebase подключен. Загружаю коллекцию 123...";
 
 
-        // Преобразуем документы
-        const data = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
+      const snapshot = await getDocs(
+        collection(db, "123")
+      );
 
 
-        console.log("Данные:", data);
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
 
 
-        if (data.length === 0) {
-          status.textContent = "Коллекция 123 пустая.";
-          return;
-        }
+      status.className = "success";
+      status.textContent =
+        `Готово! Найдено документов: ${data.length}`;
 
 
-        // Собираем названия всех полей
-        const columns = [
-          ...new Set(
-            data.flatMap(item => Object.keys(item))
-          )
-        ];
+      result.textContent =
+        JSON.stringify(data, null, 2);
 
 
-        // Создаём заголовки
-        columns.forEach(column => {
+    } catch (error) {
 
-          const th = document.createElement("th");
+      console.error(error);
 
-          th.textContent = column;
+      status.className = "error";
 
-          tableHead.appendChild(th);
+      status.textContent =
+        "ОШИБКА: " + error.code;
 
-        });
+      result.textContent =
+        error.message;
 
-
-        // Создаём строки
-        data.forEach(item => {
-
-          const tr = document.createElement("tr");
-
-
-          columns.forEach(column => {
-
-            const td = document.createElement("td");
-
-            const value = item[column];
-
-
-            if (value === null || value === undefined) {
-
-              td.textContent = "";
-
-            } else if (typeof value === "object") {
-
-              td.innerHTML =
-                `<pre>${JSON.stringify(value, null, 2)}</pre>`;
-
-```
-        } else {
-
-          td.textContent = value;
-
-        }
-
-
-        tr.appendChild(td);
-
-      });
-
-
-      tableBody.appendChild(tr);
-
-    });
-
-
-    status.textContent =
-      `Загружено документов: ${data.length}`;
-
-    table.style.display = "table";
-
-
-  } catch (error) {
-
-    console.error(error);
-
-    status.textContent =
-      "Ошибка: " + error.message;
-
-  }
-
-}
-
-
-loadData();
-```
+    }
 
   </script>
 
