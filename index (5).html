@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Firestore</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 30px;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    #status {
+      padding: 15px;
+      background: white;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    #data {
+      display: grid;
+      gap: 15px;
+    }
+
+    .document {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .document-id {
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .error {
+      color: #d00;
+    }
+
+    .success {
+      color: #080;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <h1>Коллекция 123</h1>
+
+  <div id="status">
+    Загрузка данных...
+  </div>
+
+  <div id="data"></div>
+
+  <script type="module">
+
+    // Firebase
+    import { initializeApp }
+      from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+    // Firestore
+    import {
+      getFirestore,
+      collection,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+
+    // ТВОЯ конфигурация Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBeDVmRsPo8UGgpIpo6s2QqxAP8E7q-6Hs",
+      authDomain: "openko-62d24.firebaseapp.com",
+      projectId: "openko-62d24",
+      storageBucket: "openko-62d24.firebasestorage.app",
+      messagingSenderId: "210659697244",
+      appId: "1:210659697244:web:d7f6b185ab1a1ad35e3c99",
+      measurementId: "G-MK1SKLD773"
+    };
+
+
+    // Запускаем Firebase
+    const app = initializeApp(firebaseConfig);
+
+    // Подключаем Firestore
+    const db = getFirestore(app);
+
+
+    const status = document.getElementById("status");
+    const dataContainer = document.getElementById("data");
+
+
+    async function loadData() {
+
+      try {
+
+        status.textContent = "Подключение к Firestore...";
+
+
+        // Получаем коллекцию 123
+        const snapshot = await getDocs(
+          collection(db, "123")
+        );
+
+
+        console.log("Количество документов:", snapshot.size);
+
+
+        if (snapshot.empty) {
+
+          status.textContent =
+            "Коллекция 123 существует, но она пустая.";
+
+          return;
+        }
+
+
+        // Очищаем статус
+        status.className = "success";
+
+        status.textContent =
+          `Загружено документов: ${snapshot.size}`;
+
+
+        // Показываем документы
+        snapshot.forEach((doc) => {
+
+          const block = document.createElement("div");
+
+          block.className = "document";
+
+
+          const id = document.createElement("div");
+
+          id.className = "document-id";
+
+          id.textContent =
+            "ID документа: " + doc.id;
+
+
+          const content = document.createElement("pre");
+
+          content.textContent =
+            JSON.stringify(doc.data(), null, 2);
+
+
+          block.appendChild(id);
+          block.appendChild(content);
+
+
+          dataContainer.appendChild(block);
+
+        });
+
+      } catch (error) {
+
+        console.error("ОШИБКА FIRESTORE:", error);
+
+
+        status.className = "error";
+
+
+        status.innerHTML =
+          `<b>Ошибка:</b><br>
+           Код: ${error.code || "unknown"}<br>
+           Сообщение: ${error.message || error}`;
+
+
+      }
+
+    }
+
+
+    loadData();
+
+  </script>
+
+</body>
+</html>
