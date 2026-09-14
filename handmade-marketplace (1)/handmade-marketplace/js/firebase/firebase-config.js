@@ -1,4 +1,4 @@
-// Firebase config подключён (взят из index__5_.html)
+
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
