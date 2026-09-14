@@ -73,19 +73,15 @@
 
   <script type="module">
 
-    // Firebase
     import { initializeApp }
       from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 
-    // Firestore
     import {
       getFirestore,
       collection,
       getDocs
     } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-
-    // ТВОЯ конфигурация Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBeDVmRsPo8UGgpIpo6s2QqxAP8E7q-6Hs",
       authDomain: "openko-62d24.firebaseapp.com",
@@ -97,10 +93,8 @@
     };
 
 
-    // Запускаем Firebase
     const app = initializeApp(firebaseConfig);
 
-    // Подключаем Firestore
     const db = getFirestore(app);
 
 
@@ -115,7 +109,6 @@
         status.textContent = "Подключение к Firestore...";
 
 
-        // Получаем коллекцию 123
         const snapshot = await getDocs(
           collection(db, "123")
         );
@@ -132,15 +125,12 @@
           return;
         }
 
-
-        // Очищаем статус
         status.className = "success";
 
         status.textContent =
           `Загружено документов: ${snapshot.size}`;
 
 
-        // Показываем документы
         snapshot.forEach((doc) => {
 
           const block = document.createElement("div");
